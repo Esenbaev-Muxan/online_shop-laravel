@@ -20,6 +20,7 @@
       <link href="home/css/style.css" rel="stylesheet" />
       <!-- responsive style -->
       <link href="home/css/responsive.css" rel="stylesheet" />
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js" integrity="sha512-aVKKRRi/Q/YV+4mjoKBsE4x3H+BkegoM/em46NNlCqNTmUYADjBbeNefNxYV7giUp0VxICtqdrbqU7iVaeZNXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
    </head>
    <body>
       <div class="hero_area">
@@ -42,6 +43,54 @@
         @include('home.product')
       <!-- end product section -->
 
+
+      {{-- Comment and reply system starts here --}}
+
+      <div style="text-align: center; padding-bottom:30px;">
+         <h1 style="font-size:30px; text-align:center; padding-top: 20px; padding-bottom:20px;">
+            Comments
+         </h1>
+
+         <form action="{{ url('add_comment') }}" method="POST">
+
+            @csrf
+
+            <textarea style="height: 150px; width:600px;" name="comment" id="" cols="" rows="" placeholder="Comment something here" ></textarea>
+            <br>
+            <input type="submit" class="btn btn-primary" value="Comment">
+         </form>
+      </div>
+
+      <div style="padding-left: 20%;">
+
+         <h1 style="font-size: 20px; padding-bottom:20px;">All Comments</h1>
+        
+         @foreach ($comment as $comment)
+            <div>
+
+               <b>{{ $comment->name }}</b>
+               <p>This is my first comments</p>
+
+               <a href="javascript::vod(0);" onclick="reply(this)">Reply</a>
+            </div>
+         @endforeach
+       
+
+         <div style="display: none;" class="replyDiv">
+
+            <textarea style="height: 100px; width: 500px;" name="" id="" cols="" rows="" placeholder="write something here"></textarea>
+            <br>
+            <a class="btn btn-primary" href="" onclick="reply(this)">Reply</a>
+   
+         </div>
+      </div>
+
+
+
+      {{-- Comment and reply system starts here --}}
+
+
+
       <!-- subscribe section -->
         @include('home.subsrib')
       <!-- end subscribe section -->
@@ -58,6 +107,23 @@
          
          </p>
       </div>
+
+
+
+
+
+
+      <script type="text/javascript">
+         function reply(coller)
+         {  
+
+            $('.replyDiv').insertAfter($(coller));
+
+            $('.replyDiv').show();
+
+         }
+      </script>
+
       <!-- jQery -->
       <script src="home/js/jquery-3.4.1.min.js"></script>
       <!-- popper js -->
