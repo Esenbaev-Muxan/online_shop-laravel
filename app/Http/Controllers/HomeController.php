@@ -2,18 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Reply;
-use Illuminate\Http\Request;
-
-use Illuminate\Support\Facades\Auth;
-
-use App\Models\User;
-use App\Models\Comment;
-use App\Models\Product;
 use App\Models\Card;
-
+use App\Models\Comment;
 use App\Models\Order;
-
+use App\Models\Product;
+use App\Models\Reply;
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use RealRashid\SweetAlert\Facades\Alert;
 use Session;
 use Stripe;
 
@@ -110,6 +107,8 @@ class HomeController extends Controller
                 }
 
                 $card->save();
+
+                Alert::success('Product Added Successfully', 'We have added product to the card');
 
                 return redirect()->back()->with('message', 'Product Added Success');
 
