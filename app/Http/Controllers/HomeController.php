@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Reply;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Auth;
 
 use App\Models\User;
+use App\Models\Comment;
 use App\Models\Product;
 use App\Models\Card;
 
@@ -15,7 +17,7 @@ use App\Models\Order;
 use Session;
 use Stripe;
 
-use App\Models\Comment;
+
 
 
 class HomeController extends Controller
@@ -25,7 +27,10 @@ class HomeController extends Controller
     public function index()
     {
         $product=Product::paginate(10);
-        return view('home.userpage', compact('product'));
+        $comment = Comment::orderby('id', 'desc')->get();
+        $reply = reply::all();
+
+        return view('home.userpage', compact('product','comment','reply'));
     }
 
     public function redirect(){
@@ -58,9 +63,11 @@ class HomeController extends Controller
         }
         else 
         {
+            $product = Product::paginate(10);
 
-            $comment = comment::all();
-            return view('home.userpage', compact('product','comment'));
+            $comment = Comment::orderby('id', 'desc')->get();
+            $reply = reply::all();
+            return view('home.userpage',compact('product','comment', 'reply'));
         }
 
     }
@@ -304,6 +311,7 @@ class HomeController extends Controller
         if(Auth::id())
         {
             $comment = new comment;
+        
 
             $comment->name = Auth::user()->name;
 
@@ -314,11 +322,46 @@ class HomeController extends Controller
             $comment->save();
 
             return redirect()->back();
+        } else {
+            return redirect('login');
+
         }
+    }
+
+    public function add_reply(Request $request)
+    {
+        if(Auth::id())
+        {
+            $reply=new Reply;
+
+            $reply->name = Auth::user()->name;
+            $reply->user_id = Auth::user()->id;
+            $reply->comment_id = $request->commentId;
+            $reply->reply = $request->reply;
+            $reply->save();
+
+            return redirect()->back();
+
+        }
+
         else 
+
         {
             return redirect('login');
         }
-
     }
+
+    public function product_search(Request $request)
+    {
+        $comment = Comment::orderby('id', 'desc')->get();
+        $reply = reply::all();
+
+        $searach_text = $request->search;
+
+        $product = product::where('title', 'LIKE', "%$searach_text%")->orWhere('title', 'LIKE', "$searach_text")->paginate(10 );
+
+        return view('home.userpage',compact('product','comment', 'reply')); 
+   }
+
+
 }

@@ -65,23 +65,52 @@
 
          <h1 style="font-size: 20px; padding-bottom:20px;">All Comments</h1>
         
+
+         {{-- @foreach ($comment as $comment) --}}
          @foreach ($comment as $comment)
-            <div>
+              <div>
 
-               <b>{{ $comment->name }}</b>
-               <p>This is my first comments</p>
+                  <b>{{ $comment->name }}</b>
+                  <p>{{ $comment->comment }}</p>
 
-               <a href="javascript::vod(0);" onclick="reply(this)">Reply</a>
+                  <a style="color: blue;" href="javascript::vod(0);" onclick="reply(this)" data-Commentid="{{ $comment->id }}">Reply</a>
+
+                  @foreach ($reply as $rep)
+
+                     @if($rep->comment_id==$comment->id)
+
+                        <div style="padding-left:3%; padding-bottom:10px;paddind-bottom:10px;">
+                        
+                           <b>{{ $rep->name }}</b>
+                           <p>{{ $rep->reply }}</p>
+                           <a style="color: blue;" href="javascript::vod(0);" onclick="reply(this)" data-Commentid="{{ $comment->id }}">Reply</a>
+                           
+
+                        </div>
+
+                     @endif
+                  @endforeach
+    
             </div>
          @endforeach
-       
+         {{-- Reply Textbox --}}
+             
+         {{-- @endforeach --}}
 
          <div style="display: none;" class="replyDiv">
 
-            <textarea style="height: 100px; width: 500px;" name="" id="" cols="" rows="" placeholder="write something here"></textarea>
-            <br>
-            <a class="btn btn-primary" href="" onclick="reply(this)">Reply</a>
-   
+            <form action="{{ url('add_reply') }}" method="POST">
+
+               @csrf
+
+               <input type="text" id="commentId" name="commentId" hidden="">
+               <textarea style="height: 100px; width: 500px;" name="reply" id="" cols="" rows="" placeholder="write something here"></textarea>
+               <br>
+
+               <button type="submit" class="btn btn-warning">Reply</button>
+
+               <a class="btn" href="javascript::void(0);" onclick="reply_close(this)">Close</a>
+            </form>
          </div>
       </div>
 
@@ -116,13 +145,33 @@
       <script type="text/javascript">
          function reply(coller)
          {  
+            document.getElementById('commentId').value=$(coller).attr('data-Commentid')
 
             $('.replyDiv').insertAfter($(coller));
 
             $('.replyDiv').show();
 
          }
+
+         function reply_close(coller)
+         {  
+
+
+            $('.replyDiv').hide();
+
+         }
       </script>
+
+<script>
+   document.addEventListener("DOMContentLoaded", function(event) { 
+       var scrollpos = localStorage.getItem('scrollpos');
+       if (scrollpos) window.scrollTo(0, scrollpos);
+   });
+
+   window.onbeforeunload = function(e) {
+       localStorage.setItem('scrollpos', window.scrollY);
+   };
+</script>
 
       <!-- jQery -->
       <script src="home/js/jquery-3.4.1.min.js"></script>
