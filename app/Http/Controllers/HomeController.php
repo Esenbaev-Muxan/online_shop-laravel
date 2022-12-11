@@ -87,39 +87,69 @@ class HomeController extends Controller
         {
             
             $user=Auth::user();
+            $userid = $user->id;
             $product=product::find($id);
-        
-            $card=new card;
-            
-            $card->name=$user->name;
-            $card->email=$user->email;
-            $card->phone=$user->phone;
-            $card->address=$user->address;
-            $card->user_id=Auth::user()->id;;
 
+            $product_exist_id = card::where('Product_id', '=', $id)->where('user_id', '=',$userid)->get('id')->first();
 
-            $card->Product_title=$product->title;
-
-            if($product->discount_price!=null)
+            if($product_exist_id)
             {
-                $card->price=$product->discount_price * $request->quantity;
+                $card = card::find($product_exist_id)->first();
+
+                $quantity=$card->quantity;
+
+                $card->quantity = $quantity + $request->quantity;
+
+                if($product->discount_price!=null)
+                {
+                    $card->price=$product->discount_price * $request->quantity;
+                }
+                else 
+                {
+                    $card->price=$product->price * $request->quantity;
+                }
+
+                $card->save();
+
+                return redirect()->back()->with('message', 'Product Added Success');
+
             }
             else 
             {
-                $card->price=$product->price * $request->quantity;
+                    $card=new card;
+                
+                $card->name=$user->name;
+                $card->email=$user->email;
+                $card->phone=$user->phone;
+                $card->address=$user->address;
+                $card->user_id=Auth::user()->id;;
+
+
+                $card->Product_title=$product->title;
+
+                if($product->discount_price!=null)
+                {
+                    $card->price=$product->discount_price * $request->quantity;
+                }
+                else 
+                {
+                    $card->price=$product->price * $request->quantity;
+                }
+
+                $card->price=$product->price;
+
+                $card->image=$product->image;
+
+                $card->Product_id=$product->id;
+                $card->quantity=$request->quantity;
+
+                $card->save();
+
+                return redirect()->back()->with('message', 'Product Added Success');
+                
             }
-
-            $card->price=$product->price;
-
-            $card->image=$product->image;
-
-            $card->Product_id=$product->id;
-            $card->quantity=$request->quantity;
-
-            $card->save();
-
-            return redirect()->back();
-            
+        
+           
         }
 
         else 
@@ -364,4 +394,24 @@ class HomeController extends Controller
    }
 
 
+
+   public function product()
+   {
+        $product=Product::paginate(10);
+        $comment = Comment::orderby('id', 'desc')->get();
+        $reply = reply::all();
+        return view('home.all_product', compact('product','comment', 'reply'));
+   }
+
+   public function search_product(Request $request)
+   {
+       $comment = Comment::orderby('id', 'desc')->get();
+       $reply = reply::all();
+
+       $searach_text = $request->search;
+
+       $product = product::where('title', 'LIKE', "%$searach_text%")->orWhere('title', 'LIKE', "$searach_text")->paginate(10 );
+
+       return view('home.all_product',compact('product','comment', 'reply')); 
+    }
 }
